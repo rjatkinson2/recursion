@@ -5,22 +5,34 @@
 
 // But instead we're going to implement it from scratch:
 var getElementsByClassName = function(className){
-  //Returns an array-like object of all child elements which have all of the given class names. When called on the document object, the complete document is searched, including the root node. You may also call getElementsByClassName() on any element; it will return only elements which are descendants of the specified root element with the given class names.
-  //document.body - Returns the <body> or <frameset> node of the current document, or null if no such element exists.
-  //element.childNodes - Returns the child elements of the selected node in the form of Array.  Child nodes appear to be shown in an array listed by just there tag <p> is shown as p.  If there's nothing inside, it will just be a p, but if there's stuff inside it will be p <stuff> p in the array's order. The array is one-level but represents multi-level html.
-  //element.classList - classList returns a token list of the class attribute of the element.
-  //console.log(document.body);
-  //console.log(document.body.childNodes);
-  //console.log(document.body.classList);
-  var childNodeArray = document.body.childNodes;
+  //instantiate a blank array to store matches
   var matches = [];
+  //instantiate a blank array for recursive children matches
+  var childrenMatches = [];
+
+  //instantiate the childNodeArray
+  var childNodeArray;
+  //generate an array with all of the parent node's child nodes. this is ONLY first children, no deeper.
+  //if a parent node isn't specified by the second argument, use document.body
+  if(!arguments[1]){childNodeArray = document.body.childNodes;}
+  //otherwise, use the parent node specified by the second argument
+  else{childNodeArray = arguments[1].childNodes;}
+  //look at every child node
   for (var i = 0; i < childNodeArray.length; i++) {
-  	if(childNodeArray[i].nodeName === 'DIV'){console.log('yea');}
-  	var cList = childNodeArray[i].classList;
-  	if(cList){
-  		if(cList.length){
-  			for (var j = 0; j < cList.length; j++) {
-  				if(cList[j]===className){matches.push(childNodeArray[i]);}
+    //if the child node is a DIV, look through it recursively. need to add any other types that create layers.
+  	if(childNodeArray[i].nodeName === 'DIV'){
+  		//childrenMatches.push(getElementsByClassName(className, childNodeArray[i]));
+  	}
+    //store a list of classes associated with the node
+  	var classList = childNodeArray[i].classList;
+    //if the node has a classList, go onnnnnn
+  	if(classList){
+      //if the clasList has a length, or as classes basically, go onnn
+  		if(classList.length){
+        //loop through all of the classes
+  			for (var j = 0; j < classList.length; j++) {
+          //if any of the classes equal the listed class name, push the current node (childNode of the parent) to the matches array
+  				if(classList[j]===className){matches.push(childNodeArray[i]);}
   			}
   		}
   	}
@@ -29,6 +41,6 @@ var getElementsByClassName = function(className){
 };
 getElementsByClassName('targetClassName');
 console.log('---testing---')
-console.log(document.getElementsByClassName('targetClassName') === getElementsByClassName('targetClassName'));
+//console.log(document.getElementsByClassName('targetClassName') === getElementsByClassName('targetClassName'));
 console.log(document.getElementsByClassName('targetClassName'));
 console.log(getElementsByClassName('targetClassName'));
