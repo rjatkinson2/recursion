@@ -15,6 +15,7 @@ var getElementsByClassName = function(className){
   var childNodeArray = document.body.childNodes;
   var matches = [];
   for (var i = 0; i < childNodeArray.length; i++) {
+  	if(childNodeArray[i].nodeName === 'DIV'){console.log('yea');}
   	var cList = childNodeArray[i].classList;
   	if(cList){
   		if(cList.length){
@@ -26,5 +27,8 @@ var getElementsByClassName = function(className){
   }
   return(matches);
 };
-
+getElementsByClassName('targetClassName');
+console.log('---testing---')
+console.log(document.getElementsByClassName('targetClassName') === getElementsByClassName('targetClassName'));
+console.log(document.getElementsByClassName('targetClassName'));
 console.log(getElementsByClassName('targetClassName'));
