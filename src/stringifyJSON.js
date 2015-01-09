@@ -4,16 +4,13 @@
 // but you don"t so you"re going to write it from scratch:
 
 var stringifyJSON = function(obj) {
-  //numbers
-  if(obj === undefined || typeof obj === 'function'){return undefined;}
-  if(typeof obj === 'number'){
-    var numToString = obj + "";
-    return numToString;
-  }
 
-  //strings
-  if(typeof obj === 'string'){
-    return '"' + obj + '"';
+  if(obj === undefined || typeof obj === 'function'){return undefined;}
+  if(obj === null){return 'null';}
+  switch(typeof obj){
+    case 'number': return obj + "";
+    case 'string': return '"' + obj + '"';
+    case 'boolean': return (obj) ? 'true' : 'false';
   }
 
   //arrays
@@ -48,16 +45,4 @@ var stringifyJSON = function(obj) {
     }
     return '{}';
   }
-
-  
-  //booleans
-  if(typeof obj === 'boolean'){
-    return (obj) ? 'true' : 'false';
-  }
-
-  if(obj === null){
-    return 'null';
-  }
-
-  return obj;
 };
