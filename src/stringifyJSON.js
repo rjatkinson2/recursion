@@ -13,36 +13,24 @@ var stringifyJSON = function(obj) {
     case 'boolean': return (obj) ? 'true' : 'false';
   }
 
-  //arrays
-  if(obj instanceof Array){
-    //just need to dig deeper into the array to evaluate recursively.
-    var vals = [];
-    for (var i = 0; i < obj.length; i++) {
-      vals.push(stringifyJSON(obj[i]));
-    };
-    return "[" + vals.join(",") + "]";
-  }
-
-  //objects
-  if(obj instanceof Object){
-    var props = [];
-    var keyValString = '';
-    //look at each key value pair
-    for(var key in obj){
-      //handle the key stringification
-      if(obj[key] !== undefined && typeof obj[key] !== 'function'){
-        keyValString = '';
-        keyValString += stringifyJSON(key);
-        keyValString += ":";
-        //handle the value stringification
-        keyValString += stringifyJSON(obj[key]);
-        //push each key value pair into an array
-        props.push(keyValString);
+  switch(obj.constructor){
+    case Array:
+      var vals = [];
+      for (var i = 0; i < obj.length; i++) {
+        vals.push(stringifyJSON(obj[i]));
+      };
+      return "[" + vals.join(",") + "]";
+    case Object:
+      var props = [];
+      var keyValString;
+      for(var key in obj){
+        if(obj[key] !== undefined && typeof obj[key] !== 'function'){
+          keyValString = '';
+          keyValString += stringifyJSON(key) + ":" + stringifyJSON(obj[key]);
+          props.push(keyValString);
+        }
       }
-    }
-    if(keyValString){
-      return "{" + props.join(",") + "}";
-    }
-    return '{}';
+      if(keyValString){return "{" + props.join(",") + "}";}
+      return '{}';
   }
 };
