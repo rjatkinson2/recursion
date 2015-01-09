@@ -4,16 +4,12 @@
 // but you don"t so you"re going to write it from scratch:
 
 var stringifyJSON = function(obj) {
-
   if(obj === undefined || typeof obj === 'function'){return undefined;}
   if(obj === null){return 'null';}
-  switch(typeof obj){
-    case 'number': return obj + "";
-    case 'string': return '"' + obj + '"';
-    case 'boolean': return (obj) ? 'true' : 'false';
-  }
-
   switch(obj.constructor){
+    case Number: return obj + "";
+    case String: return '"' + obj + '"';
+    case Boolean: return (obj) ? 'true' : 'false';
     case Array:
       var vals = [];
       for (var i = 0; i < obj.length; i++) {
