@@ -6,7 +6,8 @@
 // But instead we're going to implement it from scratch:
 var getElementsByClassName = function(className){
   var matches = [];
-  var childNodes = (arguments[1]) ? arguments[1].childNodes : document.body.childNodes;
+  var childNodes = (arguments[1]) ? arguments[1].childNodes : document.childNodes;
+
   for (var i = 0; i < childNodes.length; i++) {
     var classMatches = false;
     if(childNodes[i].classList){
@@ -25,10 +26,3 @@ var getElementsByClassName = function(className){
     }
   }return matches;
 };
-getElementsByClassName('targetClassName');
-console.log('---testing---');
-//console.log(document.getElementsByClassName('targetClassName') === getElementsByClassName('targetClassName'));
-console.log('---prototype---');
-console.log(document.getElementsByClassName('targetClassName'));
-console.log('---myFunction---');
-console.log(getElementsByClassName('targetClassName'));
