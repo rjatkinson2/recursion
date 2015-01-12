@@ -8,10 +8,15 @@ var getElementsByClassName = function(className){
   var matches = [];
   var childNodes = (arguments[1]) ? arguments[1].childNodes : document.body.childNodes;
   for (var i = 0; i < childNodes.length; i++) {
-    if(childNodes[i] instanceof HTMLElement && childNodes[i].classList.length){
+    if(childNodes[i] instanceof HTMLElement && childNodes[i].classList[0] === className){
       matches.push(childNodes[i]);
-      if(childNodes[i].childElementCount > 0){
-        matches.push(getElementsByClassName(className, childNodes[i]));
+    }
+    if(childNodes[i].childElementCount > 0){
+      var childMatches = (getElementsByClassName(className, childNodes[i]));
+      for (var j = 0; j < childMatches.length; j++) {
+        if(childMatches[j]){
+          matches.push(childMatches[j]);
+        }
       }
     }
   }return matches;
