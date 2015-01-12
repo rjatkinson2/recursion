@@ -7,19 +7,19 @@
 var getElementsByClassName = function(className){
   var matches = [];
   var childNodes = (arguments[1]) ? arguments[1].childNodes : document.childNodes;
-
   for (var i = 0; i < childNodes.length; i++) {
     var classMatches = false;
-    if(childNodes[i].classList){
-      for (var j = 0; j < childNodes[i].classList.length; j++) {
-        if(childNodes[i].classList[j] === className){classMatches = true;}
+    var childNode = childNodes[i];
+    if(childNode.classList){
+      for (var j = 0; j < childNode.classList.length; j++) {
+        if(childNode.classList[j] === className){classMatches = true;}
       };
     }
-    if(childNodes[i] instanceof HTMLElement && classMatches === true){
-      matches.push(childNodes[i]);
+    if(classMatches === true){
+      matches.push(childNode);
     }
-    if(childNodes[i].childElementCount > 0){
-      var childMatches = (getElementsByClassName(className, childNodes[i]));
+    if(childNode.childElementCount > 0){
+      var childMatches = (getElementsByClassName(className, childNode));
       for (var k = 0; k < childMatches.length; k++) {
         matches.push(childMatches[k]);
       }
