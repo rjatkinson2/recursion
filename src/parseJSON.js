@@ -7,22 +7,23 @@ var parseJSON = function(json) {
   var inner = json.slice(1,json.length-1);
   //identify objects
     if(outer === '{}'){
-      debug('its an object');
-      var numInside = 0;
-      var skip = 0;
+      var pairs = [], lastComma = 0, numInside = 0, skip = 0;
       //count commas to determine number of objects inside the object.
       for (var i = 0; i < inner.length; i++) {
         if(inner.charAt(i) === "'"){
           skip++;
         }
         if(inner.charAt(i) === ',' && skip % 2 === 0){
+          pairs.push(inner.slice(lastComma,i));
+          lastComma = i+1;
           numInside++;
         }
       }
       if(numInside > 0){
+        pairs.push(inner.slice(lastComma,inner.length));
         numInside++;
       }
-      debug(numInside);
+      debug(pairs);
     }
   //identify arrays
     if(outer === '[]'){
@@ -30,9 +31,9 @@ var parseJSON = function(json) {
     }
   //everything else
 };
-parseJSON("{'a,bc':5,'def':14,'ghi':false, monkey:boy}");
+parseJSON("{'a,bc':5,'def':14,'ghi':false,monkey:boy}");
 
-debug('==== test stuff ====')
+debug('==== test stuff ====');
 debug(JSON.parse('{}'));                 // {}
 debug(JSON.parse('true'));               // true
 debug(JSON.parse('"foo"'));              // "foo"
