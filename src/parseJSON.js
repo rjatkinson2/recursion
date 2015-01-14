@@ -6,9 +6,13 @@ var parseJSON = function(json) {
   var outer = json.slice(0,1) + json.slice(json.length-1,json.length);
   var inner = json.slice(1,json.length-1);
 
+  //handle null
+  if(json === 'null'){
+    return null;
+  }
+
   //handle booleans
   if(json === 'true' || json === 'false'){
-    console.log(typeof json);
     return (json === 'true') ? true : false;
   }
   
@@ -26,9 +30,9 @@ var parseJSON = function(json) {
     var keyVal;
     for (var i = 0; i < keyVals.length; i++) {
       keyVal = parseDivider(keyVals[i],':');
-      newObject[keyVal[0]] = parseJSON(keyVal[1]);
+      newObject[parseJSON(keyVal[0])] = parseJSON(keyVal[1]);
     }
-    console.log(newObject);
+    return newObject;
   }
 
   //handle arrays
@@ -42,6 +46,9 @@ var parseJSON = function(json) {
   }
 
   //everything else
+  if(typeof inner === 'string'){
+    return inner;
+  }
 
   //parseDivider is a utility function that searches for a divider and breaks the string up into an array of values demonstrated by the specified divider. The function makes sure the divider is skipped if it exists inside of a string.
   function parseDivider(str,div){
@@ -65,13 +72,24 @@ var parseJSON = function(json) {
   }
   return json;
 };
-console.log(parseJSON("[4,5,'boy']"));
+
+console.log(parseJSON("[4,5,'girl',false]"));
 parseJSON("{'a,bc':5,'def':14,'ghi':true,monkey:boy}");
 
 console.log('==== test stuff ====');
-console.log(JSON.parse('{}'));                 // {}
-console.log(JSON.parse('true'));               // true
-console.log(JSON.parse('"foo"'));              // "foo"
-console.log(JSON.parse('[1, 5, "false"]'));    // [1, 5, "false"]
-console.log(JSON.parse('null'));               // null
-console.log(JSON.parse('{"1": 1, "2": 2}'));   //Object {1: 1, 2: 2}
+console.log(JSON.parse('[4,5,"girl",false]'));
+console.log(JSON.parse('{}'));                 // {}  object
+console.log(parseJSON('{}'));                 // {}  object
+console.log(JSON.parse('true'));               // true  boolean
+console.log(parseJSON('true'));               // true  boolean
+console.log(JSON.parse('"foo"'));              // "foo"  string
+console.log(parseJSON('"foo"'));              // "foo"  string
+console.log(JSON.parse('[1, 5, "false"]'));    // [1, 5, "false"]  object
+console.log(parseJSON('[1, 5, "false"]'));    // [1, 5, "false"]  object
+console.log(JSON.parse('null'));               // null  object
+console.log(parseJSON('null'));               // null  string
+console.log(JSON.parse('{"1": 1, "2": 2}'));   //Object {1: 1, 2: 2}  object
+console.log(parseJSON('{"1": 1, "2": 2}'));   //Object {1: 1, 2: 2}  string
+
+
+
