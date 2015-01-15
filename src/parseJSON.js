@@ -11,9 +11,18 @@ var parseJSON = function(json) {
     }
   }
 
-  var inner, outer;
-  outer = json.slice(start,1) + json.slice(json.length-1,json.length);
-  inner = json.slice(start+1,json.length-1);
+  var backNotSet = true;
+  for (var j = json.length - 1; j >= 0; j--) {
+    if(backNotSet && json.charAt(j) !== ' '){
+      var end = j+1;
+      backNotSet = false;
+    }
+  };
+
+  var inner, outer, jsonNWS;
+  jsonNWS = json.slice(start,end);
+  outer = json.slice(start,start+1) + json.slice(end-1,end);
+  inner = json.slice(start+1,end-1);
 
   if(json.length === 1){
     outer = '""';
@@ -21,13 +30,13 @@ var parseJSON = function(json) {
   }
 
   //handle null
-  if(json === 'null'){
+  if(jsonNWS === 'null' || jsonNWS === null){
     return null;
   }
 
   //handle booleans
-  if(json === 'true' || json === 'false'){
-    return (json === 'true') ? true : false;
+  if(jsonNWS === 'true' || jsonNWS === 'false'){
+    return (jsonNWS === 'true') ? true : false;
   }
   
   //handle numbers
@@ -37,9 +46,9 @@ var parseJSON = function(json) {
 
   //handle objects
   if(outer === '{}'){
-    newObject = {};
+    var newObject = {};
+    if(inner === ''){return newObject;}
     var keyVals = parseDivider(inner,',');
-
     //handle key-value pairs
     var keyVal;
     for (var i = 0; i < keyVals.length; i++) {
@@ -51,7 +60,8 @@ var parseJSON = function(json) {
 
   //handle arrays
   if(outer === '[]'){
-    newArray = [];
+    var newArray = [];
+    if(inner === ''){return newArray;}
     var vals = parseDivider(inner,',');
     for (var i = 0; i < vals.length; i++) {
       newArray.push(parseJSON(vals[i]));
@@ -66,13 +76,15 @@ var parseJSON = function(json) {
 
   //parseDivider is a utility function that searches for a divider and breaks the string up into an array of values demonstrated by the specified divider. The function makes sure the divider is skipped if it exists inside of a string.
   function parseDivider(str,div){
-    var pairs = [], lastComma = 0, numInside = 0, skip = 0;
+    var pairs = [], lastComma = 0, numInside = 0, skip = 0, skipOb = 0, skipArr = 0;
     //count commas to determine number of objects inside the object.
     for (var i = 0; i < str.length; i++) {
-      if(str.charAt(i) === '"'){
-        skip++;
-      }
-      if(str.charAt(i) === div && skip % 2 === 0){
+      if(str.charAt(i) === '{'){skipOb++;}
+      if(str.charAt(i) === '}'){skipOb--;}
+      if(str.charAt(i) === '['){skipArr++;}
+      if(str.charAt(i) === ']'){skipArr--;}
+      if(str.charAt(i) === '"'){skip++;}
+      if(str.charAt(i) === div && skip % 2 === 0 && skipOb === 0 && skipArr === 0){
         pairs.push(str.slice(lastComma,i));
         lastComma = i+1;
         numInside++;
@@ -81,6 +93,8 @@ var parseJSON = function(json) {
     if(numInside > 0){
       pairs.push(str.slice(lastComma,str.length));
       numInside++;
+    }else{
+      pairs.push(str);
     }
     return pairs;
   }
@@ -105,9 +119,8 @@ console.log(JSON.parse('{"foo": true, "bar": false, "baz": null}'));
 console.log(parseJSON('{"foo": true, "bar": false, "baz": null}'));
 console.log(JSON.parse('[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]'));
 console.log(parseJSON('[1, 0, -1, -0.3, 0.3, 1343.32, 3345, 0.00011999999999999999]'));
-console.log(JSON.parse('{"boolean, true": true, "boolean, false": false, "null": null }'));
-console.log(parseJSON('{"boolean, true": true, "boolean, false": false, "null": null }'));
-// basic nestin
+console.log(JSON.parse('{"boolean, true": true, "boolean, false": false , "null": null }'));
+console.log(parseJSON('{"boolean, true": true, "boolean, false": false , "null": null }'));
 // basic nestin
 console.log(JSON.parse('{"a":{"b":"c"}}'));
 console.log(parseJSON('{"a":{"b":"c"}}'));
@@ -119,7 +132,6 @@ console.log(JSON.parse('{"a":[],"c": {}, "b": true}'));
 console.log(parseJSON('{"a":[],"c": {}, "b": true}'));
 console.log(JSON.parse('[[[["foo"]]]]'));
 console.log(parseJSON('[[[["foo"]]]]'));
-// escapin
 // escapin
 console.log(JSON.parse('["\\\\\\"\\"a\\""]'));
 console.log(parseJSON('["\\\\\\"\\"a\\""]'));
