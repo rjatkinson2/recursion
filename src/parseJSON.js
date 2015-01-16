@@ -5,6 +5,7 @@
 var parseJSON = function(json) {
   var escapeFlag = false;
   var notSet = true;
+  var checkObj = 0, checkArray = 0;
   for (var i = 0; i < json.length; i++) {
     var c = json.charAt(i);
     if(notSet && json.charAt(i) !== ' ' && c !== '\b' && c !== '\f' && c !== '\n' && c !== '\r' && c !== '\t'){
@@ -13,6 +14,19 @@ var parseJSON = function(json) {
     }
     if(json.charAt(i) === '\\'){
       escapeFlag = true;
+    }
+    if(json.charAt(i) === '{'){checkObj++;}
+    if(json.charAt(i) === '}'){
+      if(checkObj < 1){throw(SyntaxError());}
+      checkObj--;
+    }
+    if(json.charAt(i) === '['){checkArray++;}
+    if(json.charAt(i) === ']'){
+      if(checkArray < 1){throw(SyntaxError());}
+      checkArray--;
+    }
+    if(i === json.length-1 && (checkObj !== 0 || checkArray !== 0)){
+      throw(SyntaxError());
     }
   }
 
@@ -373,3 +387,9 @@ console.log(parseJSON('{\r\n' +
     '              }\r\n' +
     '          }\r\n' +
     '      }\r\n'));
+
+
+
+    console.log(_.isEqual(JSON.parse('["foo",]] "bar"'),parseJSON('["foo",]] "bar"')));
+
+    
