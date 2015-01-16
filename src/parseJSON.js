@@ -5,7 +5,7 @@
 var parseJSON = function(json) {
   var escapeFlag = false;
   var notSet = true;
-  var checkObj = 0, checkArray = 0;
+  var checkObj = 0, checkArray = 0; checkQuote = 0;
   for (var i = 0; i < json.length; i++) {
     var c = json.charAt(i);
     if(notSet && json.charAt(i) !== ' ' && c !== '\b' && c !== '\f' && c !== '\n' && c !== '\r' && c !== '\t'){
@@ -28,6 +28,8 @@ var parseJSON = function(json) {
     if(i === json.length-1 && (checkObj !== 0 || checkArray !== 0)){
       throw(SyntaxError());
     }
+    if(json.charAt(i) === '"' && (json.charAt(i-1) != '\\')){checkQuote++;}
+    if(i === json.length-1 && (checkQuote % 2 !== 0 )){throw(SyntaxError());}
   }
 
   var backNotSet = true;
@@ -92,13 +94,14 @@ var parseJSON = function(json) {
   //handle escapes
   if(escapeFlag){
     var newString = [];
+    var escaped = false;
     for (var m = inner.length - 1; m >= 0; m--) {
       var c = inner.charAt(m);
-      if((inner.charAt(m)!== '\\' || 
-        (inner.charAt(m) === '\\' && inner.charAt(m+1) !=='\\' && inner.charAt(m-1) === '\\')) &&
-        (c !== '\b' && c !== '\f' && c !== '\n' && c !== '\r' && c !== '\t')
-        ){
-        newString.unshift(inner.charAt(m));
+      var d = inner.charAt(m) + inner.charAt(m-1);
+      if(!escaped && d === '\\\\'){escaped = true; m--;}
+      if(escaped && d === '\\\\'){newString.unshift(c); escaped = false; m--;}
+      if(c!== '\\' && c !== '\b' && c !== '\f' && c !== '\n' && c !== '\r' && c !== '\t'){
+        newString.unshift(c);
       }
     }
     return newString.join('');
@@ -188,8 +191,8 @@ console.log(_.isEqual(JSON.parse('{"a":[],"c": {}, "b": true}'),parseJSON('{"a":
 console.log(_.isEqual(JSON.parse('[[[["foo"]]]]'),parseJSON('[[[["foo"]]]]')));
 
 // escapin
-console.log(JSON.parse('["\\\\\\"\\"a\\""]'));
-console.log(parseJSON('["\\\\\\"\\"a\\""]'));
+console.log(JSON.parse('["\\\\\\\\\\"\\"a\\\\\\""]'));
+console.log(parseJSON('["\\\\\\\\\\"\\"a\\\\\\""]'));
 console.log(JSON.parse('["and you can\'t escape thi\s"]'));
 console.log(parseJSON('["and you can\'t escape thi\s"]'));
 
@@ -205,7 +208,7 @@ console.log(parseJSON('{"a,bc":5,"de:f":14,"ghi":true,"monkey": "boy"}'));
 console.log('==== test stuff ====');
 console.log(JSON.parse('{}'));                 // {}  object
 console.log(parseJSON('{}'));                 // {}  object
-console.log(JSON.parse('{}') === '{}');
+console.log(_.isEqual(JSON.parse('{}'),{}));
 console.log(JSON.parse('true'));               // true  boolean
 console.log(parseJSON('true'));               // true  boolean
 console.log(JSON.parse('true')===parseJSON('true'));
@@ -214,7 +217,7 @@ console.log(parseJSON('"foo"'));              // "foo"  string
 console.log(JSON.parse('"foo"')===parseJSON('"foo"'));
 console.log(JSON.parse('[1, 5, "false"]'));    // [1, 5, "false"]  object
 console.log(parseJSON('[1, 5, "false"]'));    // [1, 5, "false"]  object
-console.log(JSON.parse('[1, 5, "false"]')===parseJSON('[1, 5, "false"]'));
+console.log(_.isEqual(JSON.parse('[1, 5, "false"]'),parseJSON('[1, 5, "false"]')));
 console.log(JSON.parse('null'));               // null  object
 console.log(parseJSON('null'));               // null  string
 console.log(JSON.parse('null')===parseJSON('null'));
@@ -388,8 +391,4 @@ console.log(parseJSON('{\r\n' +
     '          }\r\n' +
     '      }\r\n'));
 
-
-
-    console.log(_.isEqual(JSON.parse('["foo",]] "bar"'),parseJSON('["foo",]] "bar"')));
-
-    
+parseJSON('["foo", "bar\\"]');
