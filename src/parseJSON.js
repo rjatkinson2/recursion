@@ -6,7 +6,8 @@ var parseJSON = function(json) {
   var escapeFlag = false;
   var notSet = true;
   for (var i = 0; i < json.length; i++) {
-    if(notSet && json.charAt(i) !== ' '){
+    var c = json.charAt(i);
+    if(notSet && json.charAt(i) !== ' ' && c !== '\b' && c !== '\f' && c !== '\n' && c !== '\r' && c !== '\t'){
       var start = i;
       notSet = false;
     }
@@ -17,7 +18,8 @@ var parseJSON = function(json) {
 
   var backNotSet = true;
   for (var j = json.length - 1; j >= 0; j--) {
-    if(backNotSet && json.charAt(j) !== ' '){
+    var c = json.charAt(j);
+    if(backNotSet && json.charAt(j) !== ' ' && c !== '\b' && c !== '\f' && c !== '\n' && c !== '\r' && c !== '\t'){
       var end = j+1;
       backNotSet = false;
     }
@@ -77,7 +79,11 @@ var parseJSON = function(json) {
   if(escapeFlag){
     var newString = [];
     for (var m = inner.length - 1; m >= 0; m--) {
-      if(inner.charAt(m)!== '\\' || (inner.charAt(m) === '\\' && inner.charAt(m+1) !=='\\' && inner.charAt(m-1) === '\\')){
+      var c = inner.charAt(m);
+      if((inner.charAt(m)!== '\\' || 
+        (inner.charAt(m) === '\\' && inner.charAt(m+1) !=='\\' && inner.charAt(m-1) === '\\')) &&
+        (c !== '\b' && c !== '\f' && c !== '\n' && c !== '\r' && c !== '\t')
+        ){
         newString.unshift(inner.charAt(m));
       }
     }
@@ -200,7 +206,7 @@ console.log(parseJSON('null'));               // null  string
 console.log(JSON.parse('null')===parseJSON('null'));
 console.log(JSON.parse('{"1": 1, "2": 2, "a":  "a"}'));   //Object {1: 1, 2: 2}  object
 console.log(parseJSON('{"1": 1, "2": 2, "b":  "a"}'));   //Object {1: 1, 2: 2}  string
-console.log(JSON.parse('{"1": 1, "2": 2, "a":  "a"}') === JSON.parse('{"1": 1, "2": 2, "a":  "a"}'));
+console.log(_.isEqual(JSON.parse('{"1": 1, "2": 2, "a":  "a"}'),JSON.parse('{"1": 1, "2": 2, "a":  "a"}')));
 
 console.log(_.isEqual(JSON.parse('{"CoreletAPIVersion":2,"CoreletType":"standalone",' +
     '"documentation":"A corelet that provides the capability to upload' +
@@ -318,4 +324,52 @@ console.log(_.isEqual(JSON.parse('{\r\n' +
     '          }\r\n' +
     '      }\r\n')));
 
+console.log(JSON.parse('{\r\n' +
+    '          "glossary": {\n' +
+    '              "title": "example glossary",\n\r' +
+    '      \t\t"GlossDiv": {\r\n' +
+    '                  "title": "S",\r\n' +
+    '      \t\t\t"GlossList": {\r\n' +
+    '                      "GlossEntry": {\r\n' +
+    '                          "ID": "SGML",\r\n' +
+    '      \t\t\t\t\t"SortAs": "SGML",\r\n' +
+    '      \t\t\t\t\t"GlossTerm": "Standard Generalized ' +
+    'Markup Language",\r\n' +
+    '      \t\t\t\t\t"Acronym": "SGML",\r\n' +
+    '      \t\t\t\t\t"Abbrev": "ISO 8879:1986",\r\n' +
+    '      \t\t\t\t\t"GlossDef": {\r\n' +
+    '                              "para": "A meta-markup language,' +
+    ' used to create markup languages such as DocBook.",\r\n' +
+    '      \t\t\t\t\t\t"GlossSeeAlso": ["GML", "XML"]\r\n' +
+    '                          },\r\n' +
+    '      \t\t\t\t\t"GlossSee": "markup"\r\n' +
+    '                      }\r\n' +
+    '                  }\r\n' +
+    '              }\r\n' +
+    '          }\r\n' +
+    '      }\r\n'));
 
+console.log(parseJSON('{\r\n' +
+    '          "glossary": {\n' +
+    '              "title": "example glossary",\n\r' +
+    '      \t\t"GlossDiv": {\r\n' +
+    '                  "title": "S",\r\n' +
+    '      \t\t\t"GlossList": {\r\n' +
+    '                      "GlossEntry": {\r\n' +
+    '                          "ID": "SGML",\r\n' +
+    '      \t\t\t\t\t"SortAs": "SGML",\r\n' +
+    '      \t\t\t\t\t"GlossTerm": "Standard Generalized ' +
+    'Markup Language",\r\n' +
+    '      \t\t\t\t\t"Acronym": "SGML",\r\n' +
+    '      \t\t\t\t\t"Abbrev": "ISO 8879:1986",\r\n' +
+    '      \t\t\t\t\t"GlossDef": {\r\n' +
+    '                              "para": "A meta-markup language,' +
+    ' used to create markup languages such as DocBook.",\r\n' +
+    '      \t\t\t\t\t\t"GlossSeeAlso": ["GML", "XML"]\r\n' +
+    '                          },\r\n' +
+    '      \t\t\t\t\t"GlossSee": "markup"\r\n' +
+    '                      }\r\n' +
+    '                  }\r\n' +
+    '              }\r\n' +
+    '          }\r\n' +
+    '      }\r\n'));
